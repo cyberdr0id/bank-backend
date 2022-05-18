@@ -3,14 +3,14 @@ CREATE TABLE `accounts` (
   `owner` varchar(255) NOT NULL,
   `balance` bigint NOT NULL,
   `currency` varchar(255) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT (now())
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE `entries` (
   `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
   `account_id` bigint NOT NULL,
   `amount` bigint NOT NULL COMMENT 'can be negative or positive',
-  `created_at` timestamp NOT NULL DEFAULT (now())
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE `transfers` (
@@ -18,7 +18,7 @@ CREATE TABLE `transfers` (
   `from_account_id` bigint NOT NULL,
   `to_account_id` bigint NOT NULL,
   `amount` bigint NOT NULL COMMENT 'must be positive',
-  `created_at` timestamp NOT NULL DEFAULT (now())
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX `account_index_0` ON `accounts` (`owner`);

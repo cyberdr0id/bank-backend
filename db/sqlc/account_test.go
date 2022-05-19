@@ -16,20 +16,13 @@ func createRandomAccount(t *testing.T) Account {
 		Currency: util.RandCurrency(),
 	}
 
-	result, err := testQueries.CreateAccount(context.Background(), args)
+	acc, err := testQueries.CreateAccount(context.Background(), args)
 
 	require.NoError(t, err)
-	require.NotEmpty(t, result)
+	require.NotEmpty(t, acc)
+	require.NotZero(t, acc.ID)
 
-	id, _ := result.LastInsertId()
-	require.NotZero(t, id)
-
-	return Account{
-		ID:       id,
-		Owner:    args.Owner,
-		Currency: args.Currency,
-		Balance:  args.Balance,
-	}
+	return acc
 }
 
 func TestCreateAccount(t *testing.T) {

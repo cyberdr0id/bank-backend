@@ -14,19 +14,13 @@ func createRandomEntry(t *testing.T, a Account) Entry {
 		Amount:    util.RandMoney(),
 	}
 
-	result, err := testQueries.CreateEntry(context.Background(), arg)
+	entry, err := testQueries.CreateEntry(context.Background(), arg)
 
 	require.NoError(t, err)
-	require.NotEmpty(t, result)
+	require.NotEmpty(t, entry)
+	require.NotZero(t, entry.ID)
 
-	id, _ := result.LastInsertId()
-	require.NotZero(t, id)
-
-	return Entry{
-		ID:        id,
-		AccountID: arg.AccountID,
-		Amount:    arg.Amount,
-	}
+	return entry
 }
 
 func TestCreateEntry(t *testing.T) {

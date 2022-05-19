@@ -15,20 +15,13 @@ func createRandomTransfer(t *testing.T, acc1, acc2 Account) Transfer {
 		Amount:        util.RandMoney(),
 	}
 
-	result, err := testQueries.CreateTransfer(context.Background(), arg)
+	transfer, err := testQueries.CreateTransfer(context.Background(), arg)
 
 	require.NoError(t, err)
-	require.NotEmpty(t, result)
+	require.NotEmpty(t, transfer)
+	require.NotZero(t, transfer.ID)
 
-	id, _ := result.LastInsertId()
-	require.NotZero(t, id)
-
-	return Transfer{
-		ID:            id,
-		FromAccountID: arg.FromAccountID,
-		ToAccountID:   arg.ToAccountID,
-		Amount:        arg.Amount,
-	}
+	return transfer
 }
 
 func TestCreateTransfer(t *testing.T) {

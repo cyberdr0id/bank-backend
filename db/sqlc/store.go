@@ -52,14 +52,20 @@ type TransferTxResult struct {
 	ToEntry     Entry    `json:"to_entry"`
 }
 
+var txKey = struct{}{}
+
 func (s *Store) TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error) {
 	var result TransferTxResult
 
 	err := s.execTx(ctx, func(q *Queries) error {
 		var err error
+
+		txName := ctx.Value(txKey)
+
 		////////////
 		// transfer creating
 		////////////
+		fmt.Println(txName, "create transfer")
 		res, err := q.CreateTransfer(ctx, CreateTransferParams{
 			FromAccountID: arg.FromAccountID,
 			ToAccountID:   arg.ToAccountID,
@@ -81,6 +87,7 @@ func (s *Store) TransferTx(ctx context.Context, arg TransferTxParams) (TransferT
 		////////////
 		//FROM entry creating
 		////////////
+		fmt.Println(txName, "create entry 1")
 		res, err = q.CreateEntry(ctx, CreateEntryParams{
 			AccountID: arg.FromAccountID,
 			Amount:    -arg.Amount,
@@ -101,6 +108,7 @@ func (s *Store) TransferTx(ctx context.Context, arg TransferTxParams) (TransferT
 		////////////
 		//TO entry creating
 		////////////
+		fmt.Println(txName, "create entry 2")
 		res, err = q.CreateEntry(ctx, CreateEntryParams{
 			AccountID: arg.ToAccountID,
 			Amount:    arg.Amount,
@@ -120,6 +128,35 @@ func (s *Store) TransferTx(ctx context.Context, arg TransferTxParams) (TransferT
 		}
 
 		//TODO: update accounts balance
+		fmt.Println(txName, "get account 1")
+		acc1, err := q.GetAccountForUpdate(ctx, arg.FromAccountID)
+		if err != nil {
+			return fmt.Errorf("cannot get account: %w", err)
+		}
+		fmt.Println(txName, "update account 1")
+		err = q.UpdateAccount(ctx, UpdateAccountParams{
+			ID:      arg.FromAccountID,
+			Balance: acc1.Balance - arg.Amount,
+		})
+		if err != nil {
+			return fmt.Errorf("cannot update account: %w", err)
+		}
+		fmt.Println(txName, "get account 2")
+		acc2, err := q.GetAccountForUpdate(ctx, arg.ToAccountID)
+		if err != nil {
+			return fmt.Errorf("cannot get account: %w", err)
+		}
+		fmt.Println(txName, "update account 2")
+		err = q.UpdateAccount(ctx, UpdateAccountParams{
+			ID:      arg.ToAccountID,
+			Balance: acc2.Balance + arg.Amount,
+		})
+		if err != nil {
+			return fmt.Errorf("cannot update account: %w", err)
+		}
+
+		result.FromAccount, _ = q.GetAccount(ctx, arg.FromAccountID)
+		result.ToAccount, _ = q.GetAccount(ctx, arg.ToAccountID)
 
 		return nil
 	})

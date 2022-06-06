@@ -36,6 +36,6 @@ sqlc:
 	sqlc generate
 
 test:
-	go test -v -cover ./db/...
+	go test -v -cover ./...
 
 .PHONY: mysql createdb dropdb migrateup migratedown sqlc

@@ -35,10 +35,16 @@ migratedown:
 sqlc:
 	sqlc generate
 
-test:
-	go test -v -cover ./...
+test.unit:
+	go test -v -cover ./db/sqlc/...
 
+test.api:	
+	go test -v -cover ./api/...
+	
 server:
-	go run main.go
+	go run cmd/main.go
 
-.PHONY: createdb dropdb migrateup migratedown sqlc server
+mock:
+	mockgen -package mockdb -destination db/mock/store.go github.com/cyberdr0id/bank-backend/db/sqlc Store
+
+.PHONY: createdb dropdb migrateup migratedown sqlc server mock
